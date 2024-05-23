@@ -1,1 +1,2 @@
-# ClashOfMultiverse_SemesterProject
+# ClashOfMultiverse
+Fighting Game with unique parry mechanics
