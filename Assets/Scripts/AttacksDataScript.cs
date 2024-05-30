@@ -9,12 +9,12 @@ public class AttacksDataScript : MonoBehaviour
     {
         attacks = new Dictionary<string, AttackStats>()
         {
-            {"KayoLightAttack", new AttackStats(300, 0, false) },
-            {"KayoMediumAttack", new AttackStats(600, 0, false)},
-            {"KayoHeavyAttack", new AttackStats(800, 0, false)},
-            {"KayoCrouchLightAttack", new AttackStats(300, 0, true)},
-            {"KayoCrouchMediumAttack", new AttackStats(600, 0, true)},
-            {"KayoCrouchHeavyAttack", new AttackStats(800, 0, true)}
+            {"KayoLightAttack", new AttackStats(300, 0, false, "lightAttackHit", "lightBlockHit") },
+            {"KayoMediumAttack", new AttackStats(600, 0, false, "mediumAttackHit", "mediumBlockHit")},
+            {"KayoHeavyAttack", new AttackStats(800, 0, false, "heavyAttackHit", "heavyBlockHit")},
+            {"KayoCrouchLightAttack", new AttackStats(300, 0, true, "lightAttackHit", "lightBlockHit")},
+            {"KayoCrouchMediumAttack", new AttackStats(600, 0, true, "mediumAttackHit", "mediumBlockHit")},
+            {"KayoCrouchHeavyAttack", new AttackStats(800, 0, true, "heavyAttackHit", "heavyBlockHit")}
             
         };
     }

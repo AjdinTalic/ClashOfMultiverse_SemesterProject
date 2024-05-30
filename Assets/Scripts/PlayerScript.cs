@@ -70,7 +70,11 @@ public class PlayerScript : MonoBehaviour
     {
         if (!anim.GetBool("isCrouching") &&
             (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") && 
-             !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery")) && 
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") && 
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit")) &&
             gameObject.CompareTag("Player"))
         {
             currentMoveSpeed = moveSpeed;
@@ -78,7 +82,11 @@ public class PlayerScript : MonoBehaviour
         }
         else if (!anim.GetBool("isCrouching") &&
                  (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
-                  !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery")) &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit")) &&
                  gameObject.CompareTag("Player2"))
         {
             currentMoveSpeed = moveSpeed;
@@ -101,9 +109,9 @@ public class PlayerScript : MonoBehaviour
         }
 
             if (((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player") ||
-                  Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2")) && scaleX > 0) ||
+                  Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2")) && scaleX < 0) ||
                 ((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player") ||
-                  Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2")) && scaleX < 0) &&
+                  Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2")) && scaleX > 0) &&
                 !anim.GetBool("isCrouching") && IsGrounded())
             
         {
@@ -131,7 +139,11 @@ public class PlayerScript : MonoBehaviour
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_StandingToCrouch") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Crouch_light") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Crouch_medium") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Crouch_heavy"))
+            anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Crouch_heavy") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit"))
         {
             standBlocking = false;
             crouchBlocking = false;
@@ -270,14 +282,20 @@ public class PlayerScript : MonoBehaviour
                 if (!standBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
                 }
                 else if (crouchBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
                 }
                 else if (isParrying)
                 {
                     DrainParryMeter(attackName);
+                }
+                else
+                {
+                    anim.SetTrigger(_attackStats.attacks[attackName].blockRecovery);
                 }
             }
             else if (_attackStats.attacks[attackName].crouchAttack)
