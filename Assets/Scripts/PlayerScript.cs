@@ -69,14 +69,18 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         if (!anim.GetBool("isCrouching") &&
-            (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") && 
-             !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery") &&
+            (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") && 
              !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumBlockHit") &&
-             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit")) &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit")) &&
             gameObject.CompareTag("Player"))
         {
             currentMoveSpeed = moveSpeed;
@@ -84,13 +88,17 @@ public class PlayerScript : MonoBehaviour
         }
         else if (!anim.GetBool("isCrouching") &&
                  (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
-                  !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumBlockHit") &&
-                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit")) &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit")) &&
                  gameObject.CompareTag("Player2"))
         {
             currentMoveSpeed = moveSpeed;
@@ -111,23 +119,38 @@ public class PlayerScript : MonoBehaviour
         {
             FLipPlayer();
         }
+        
+        if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.S)) ||
+             (gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.DownArrow)) && IsGrounded())
+        {
+            anim.SetBool("isCrouching", true);
+        }
+        else
+        {
+            anim.SetBool("isCrouching", false);
+        }
 
-            if (((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player") ||
-                  Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2")) && scaleX > 0) ||
-                ((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player") ||
-                  Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2")) && scaleX < 0) &&
-                !anim.GetBool("isCrouching") && IsGrounded())
+        if ((((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player")  &&
+               anim.GetBool("isCrouching")) ||
+              (Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2")  &&
+               anim.GetBool("isCrouching"))) && scaleX > 0) ||
+            (((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player")  &&
+               anim.GetBool("isCrouching")) ||
+              (Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2")  &&
+               anim.GetBool("isCrouching"))) && scaleX < 0) && IsGrounded())
+        {
+            standBlocking = false;
+            crouchBlocking = true;
+        }
+        else if ((((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player")) ||
+                   (Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2"))) && scaleX > 0) ||
+                 (((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player")) ||
+                   (Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2"))) && scaleX < 0) &&
+                 IsGrounded())
             
         {
             standBlocking = true;
             crouchBlocking = false;
-        }
-        else if ((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player") ||
-                  Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2")) &&
-                 anim.GetBool("isCrouching") && IsGrounded())
-        {
-            standBlocking = false;
-            crouchBlocking = true;
         }
         else
         {
@@ -136,7 +159,6 @@ public class PlayerScript : MonoBehaviour
         }
             
         if (anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLightRecovery") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_CrouchToStanding") ||
@@ -152,20 +174,9 @@ public class PlayerScript : MonoBehaviour
             crouchBlocking = false;
         }
 
-        if (((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.S)) ||
-                 (gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.DownArrow))) && IsGrounded())
-        {
-            anim.SetBool("isCrouching", true);
-        }
-        else
-        {
-            anim.SetBool("isCrouching", false);
-            
-        }
-
         if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 && currentParryMeter < maxParryMeter && 
              IsGrounded()) || gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.Keypad5) && currentParryMeter > 0 && 
-                currentParryMeter < maxParryMeter && IsGrounded())
+            currentParryMeter < maxParryMeter && IsGrounded())
         {
             isParrying = true;
             gameObject.GetComponent<SpriteRenderer>().color = Color.black;
@@ -208,7 +219,19 @@ public class PlayerScript : MonoBehaviour
         }
 
         if (((Input.GetKey(KeyCode.W) && gameObject.CompareTag("Player")) ||
-             (Input.GetKey(KeyCode.UpArrow) && gameObject.CompareTag("Player2"))) && IsGrounded())
+             (Input.GetKey(KeyCode.UpArrow) && gameObject.CompareTag("Player2"))) && IsGrounded() &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit"))
         {
             rb.velocity = new Vector2(rb.velocity.x, jump);
         }
@@ -306,14 +329,20 @@ public class PlayerScript : MonoBehaviour
                 if (!crouchBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
                 }
                 else if (standBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
                 }
                 else if (isParrying)
                 {
                     DrainParryMeter(attackName);
+                }
+                else
+                {
+                    anim.SetTrigger(_attackStats.attacks[attackName].blockRecovery);
                 }
             }
         }
