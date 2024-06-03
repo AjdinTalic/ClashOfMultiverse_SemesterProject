@@ -608,7 +608,7 @@ AnimatorStateMachine:
     m_Position: {x: -1040, y: -400, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8093921401344170438}
-    m_Position: {x: 630, y: 280, z: 0}
+    m_Position: {x: 650, y: 150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3293578693668347507}
     m_Position: {x: 1550, y: -460, z: 0}
@@ -1479,7 +1479,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: KayoStandLight
+  m_Name: TestPlayer_Standing_light
   m_Speed: 4
   m_CycleOffset: 0
   m_Transitions:
@@ -1729,11 +1729,11 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: lightAttack
-    m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
+    m_ConditionEvent: lightAttack
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 942260328278312691}

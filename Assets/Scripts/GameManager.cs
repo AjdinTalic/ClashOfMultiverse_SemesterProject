@@ -2,11 +2,15 @@ using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text timerTxt;
     [SerializeField] private TMP_Text gameOverTxt;
+
+    [SerializeField] private GameObject menu;
+    [SerializeField] private GameObject resumeButton;
 
     private int timeCount = 99;
     private float timer;
@@ -18,6 +22,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Time.timeScale = 1;
         timerTxt.text = Convert.ToString(timeCount); 
         players = FindObjectsByType<PlayerScript>(FindObjectsSortMode.None);
         gameOverTxt.text = " ";
@@ -26,6 +31,12 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            menu.SetActive(true);
+            Time.timeScale = 0;
+        }
+        
         timer += Time.deltaTime;
 
         if (timer >= 1 && timeCount > 0 && !isGameOver)
@@ -48,6 +59,7 @@ public class GameManager : MonoBehaviour
             }
 
             isGameOver = true;
+            GameEndScreen();
         }
         else if (players[0].currentVitality <= 0)
         {
@@ -61,6 +73,7 @@ public class GameManager : MonoBehaviour
             }
 
             isGameOver = true;
+            GameEndScreen();
         }
 
         if (timeCount <= 0)
@@ -77,6 +90,8 @@ public class GameManager : MonoBehaviour
                 {
                     gameOverTxt.text = "P2 Wins";
                 }
+                
+                GameEndScreen();
             }
             else if (players[1].currentVitality > players[0].currentVitality)
             {
@@ -88,6 +103,8 @@ public class GameManager : MonoBehaviour
                 {
                     gameOverTxt.text = "P2 Wins";
                 }
+                
+                GameEndScreen();
             }
             else if (players[0].currentVitality == players[1].currentVitality)
             {
@@ -100,5 +117,30 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void Resume()
+    {
+        menu.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+    public void Rematch()
+    {
+        SceneManager.LoadScene("GameScene");
+        Time.timeScale = 1;
+    }
+
+    public void BackToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 1;
+    }
+
+    public void GameEndScreen()
+    {
+        menu.SetActive(true);
+        resumeButton.SetActive(false);
+        Time.timeScale = 0;
     }
 }

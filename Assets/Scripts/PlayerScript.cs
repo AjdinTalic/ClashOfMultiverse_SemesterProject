@@ -69,7 +69,7 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         if (!anim.GetBool("isCrouching") &&
-            (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
+            (!anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
@@ -87,7 +87,7 @@ public class PlayerScript : MonoBehaviour
             p1Horizontal = Input.GetAxis("Horizontal");
         }
         else if (!anim.GetBool("isCrouching") &&
-                 (!anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
+                 (!anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
@@ -121,7 +121,7 @@ public class PlayerScript : MonoBehaviour
         }
         
         if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.S)) ||
-             (gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.DownArrow)) && IsGrounded())
+            (gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.DownArrow)) && IsGrounded())
         {
             anim.SetBool("isCrouching", true);
         }
@@ -156,9 +156,10 @@ public class PlayerScript : MonoBehaviour
         {
             standBlocking = false;
             crouchBlocking = false;
+            
         }
             
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") ||
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_CrouchToStanding") ||
@@ -174,9 +175,9 @@ public class PlayerScript : MonoBehaviour
             crouchBlocking = false;
         }
 
-        if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 && currentParryMeter < maxParryMeter && 
-             IsGrounded()) || gameObject.CompareTag("Player2") && Input.GetKey(KeyCode.Keypad5) && currentParryMeter > 0 && 
-            currentParryMeter < maxParryMeter && IsGrounded())
+        if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 &&
+             currentParryMeter < maxParryMeter && IsGrounded()) || gameObject.CompareTag("Player2") &&
+            Input.GetKey(KeyCode.Keypad5) && currentParryMeter > 0 && currentParryMeter < maxParryMeter && IsGrounded())
         {
             isParrying = true;
             gameObject.GetComponent<SpriteRenderer>().color = Color.black;
@@ -220,7 +221,7 @@ public class PlayerScript : MonoBehaviour
 
         if (((Input.GetKey(KeyCode.W) && gameObject.CompareTag("Player")) ||
              (Input.GetKey(KeyCode.UpArrow) && gameObject.CompareTag("Player2"))) && IsGrounded() &&
-            !anim.GetCurrentAnimatorStateInfo(0).IsName("KayoStandLight") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") &&
             !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
             !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
             !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
