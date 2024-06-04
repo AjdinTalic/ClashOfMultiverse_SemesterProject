@@ -14,7 +14,8 @@ public class AttacksDataScript : MonoBehaviour
             {"KayoHeavyAttack", new AttackStats(800, 0, false, "heavyAttackHit", "heavyBlockHit")},
             {"KayoCrouchLightAttack", new AttackStats(300, 0, true, "lightAttackHit", "lightBlockHit")},
             {"KayoCrouchMediumAttack", new AttackStats(600, 0, true, "mediumAttackHit", "mediumBlockHit")},
-            {"KayoCrouchHeavyAttack", new AttackStats(800, 0, true, "heavyAttackHit", "heavyBlockHit")}
+            {"KayoCrouchHeavyAttack", new AttackStats(800, 0, true, "heavyAttackHit", "heavyBlockHit")},
+            {"KayoPerfectParryAttack", new AttackStats(500, 0, false, "ppAttackHit", "ppBlockHit")}
             
         };
     }

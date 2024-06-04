@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.iOS;
 using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
@@ -31,12 +32,14 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private float currentBurnoutTime;
     [SerializeField] private float parryDrain;
     [SerializeField] private float timeAdd;
+    [SerializeField] private float perfectParryWindow = 0.1f;
 
     [SerializeField] public Image vitalityBar;
     [SerializeField] private Image parryMeter;
     [SerializeField] private Image timeBar;
 
     [SerializeField] private GameObject midPos;
+    [SerializeField] private GameObject perfectParryHitbox;
 
     private Vector2 gravityVector;
 
@@ -46,6 +49,9 @@ public class PlayerScript : MonoBehaviour
     private bool crouchBlocking;
     private bool isParrying;
     private bool isBurnout;
+    private bool perfectParry;
+    private float parryTime;
+    private float activePpTime;
 
     private float scaleX;
 
@@ -58,7 +64,7 @@ public class PlayerScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>(); 
         currentVitality = maxVitality;
-        currentParryMeter = maxParryMeter;
+        currentParryMeter = maxParryMeter * 0.75f;
         currentBurnoutTime = 0;
         vitalityBar.fillAmount = currentVitality / maxVitality;
         parryMeter.fillAmount = currentParryMeter / maxParryMeter;
@@ -68,6 +74,17 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (perfectParry)
+        {
+            activePpTime += Time.deltaTime;
+            if (activePpTime >= 0.5f)
+            {
+                perfectParryHitbox.SetActive(false);
+                perfectParry = false;
+                activePpTime = 0;
+            }
+        }
+
         if (!anim.GetBool("isCrouching") &&
             (!anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
@@ -80,7 +97,9 @@ public class PlayerScript : MonoBehaviour
              !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
              !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
-             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit")) &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("ppAttackHit") &&
+             !anim.GetCurrentAnimatorStateInfo(0).IsName("ppBlockHit")) &&
             gameObject.CompareTag("Player"))
         {
             currentMoveSpeed = moveSpeed;
@@ -98,7 +117,9 @@ public class PlayerScript : MonoBehaviour
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
                   !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
-                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit")) &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("ppAttackHit") &&
+                  !anim.GetCurrentAnimatorStateInfo(0).IsName("ppBlockHit")) &&
                  gameObject.CompareTag("Player2"))
         {
             currentMoveSpeed = moveSpeed;
@@ -143,10 +164,10 @@ public class PlayerScript : MonoBehaviour
             crouchBlocking = true;
         }
         else if ((((Input.GetKey(KeyCode.A) && gameObject.CompareTag("Player")) ||
-                   (Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2"))) && scaleX > 0) ||
-                 (((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player")) ||
-                   (Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2"))) && scaleX < 0) &&
-                 IsGrounded())
+                    (Input.GetKey(KeyCode.LeftArrow) && gameObject.CompareTag("Player2"))) && scaleX > 0) ||
+                  (((Input.GetKey(KeyCode.D) && gameObject.CompareTag("Player")) ||
+                    (Input.GetKey(KeyCode.RightArrow) && gameObject.CompareTag("Player2"))) && scaleX < 0) &&
+                  IsGrounded())
             
         {
             standBlocking = true;
@@ -158,6 +179,7 @@ public class PlayerScript : MonoBehaviour
             crouchBlocking = false;
             
         }
+        
             
         if (anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") ||
@@ -169,22 +191,60 @@ public class PlayerScript : MonoBehaviour
             anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Crouch_heavy") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") ||
             anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit"))
+            anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("ppAttackHit"))
         {
             standBlocking = false;
             crouchBlocking = false;
         }
 
-        if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 &&
-             currentParryMeter < maxParryMeter && IsGrounded()) || gameObject.CompareTag("Player2") &&
-            Input.GetKey(KeyCode.Keypad5) && currentParryMeter > 0 && currentParryMeter < maxParryMeter && IsGrounded())
+
+        if (((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 &&
+              currentParryMeter < maxParryMeter && IsGrounded()) || (gameObject.CompareTag("Player2") &&
+                                                                     Input.GetKey(KeyCode.Keypad5) && currentParryMeter > 0 && currentParryMeter < maxParryMeter &&
+                                                                     IsGrounded())) && 
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_light") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_medium") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("TestPlayer_Standing_heavy") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("ppAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("ppBlockHit"))
         {
             isParrying = true;
             gameObject.GetComponent<SpriteRenderer>().color = Color.black;
+            parryTime += Time.deltaTime;
+        }
+        else if ((gameObject.CompareTag("Player") && Input.GetKey(KeyCode.I) && currentParryMeter > 0 &&
+                  currentParryMeter < maxParryMeter && IsGrounded()) || (gameObject.CompareTag("Player2") &&
+                                                                         Input.GetKey(KeyCode.Keypad5) &&
+                                                                         currentParryMeter > 0 &&
+                                                                         currentParryMeter < maxParryMeter &&
+                                                                         IsGrounded()))
+        {
+            isParrying = false;
+            parryTime += Time.deltaTime;
+            
+            if (gameObject.CompareTag("Player"))
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = Color.cyan;
+            }
+            else if (gameObject.CompareTag("Player2"))
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+            }
         }
         else
         {
             isParrying = false;
+            parryTime = 0;
 
             if (gameObject.CompareTag("Player"))
             {
@@ -196,7 +256,7 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        if (currentParryMeter <= 0)
+        if (currentParryMeter <= 0 || currentParryMeter >= maxParryMeter)
         {
             isBurnout = true;
         }
@@ -232,7 +292,9 @@ public class PlayerScript : MonoBehaviour
             !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyBlockHit") &&
             !anim.GetCurrentAnimatorStateInfo(0).IsName("lightCrouchBlockHit") &&
             !anim.GetCurrentAnimatorStateInfo(0).IsName("mediumCrouchBlockHit") &&
-            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit"))
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("heavyCrouchBlockHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("ppAttackHit") &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("ppBlockHit"))
         {
             rb.velocity = new Vector2(rb.velocity.x, jump);
         }
@@ -241,11 +303,9 @@ public class PlayerScript : MonoBehaviour
         {
             rb.velocity -= gravityVector * fallAccellaration * Time.deltaTime;
         }
-
-        if (currentVitality <= 0)
-        {
-            Destroy(gameObject);
-        }
+        
+        Debug.Log(Input.GetKey(KeyCode.A) + " " + gameObject.CompareTag("Player") + " " + anim.GetBool("isCrouching") + " " + IsGrounded() + " " + scaleX);
+        Debug.Log(standBlocking + " " + crouchBlocking);
     }
 
     private void OnTriggerEnter2D(Collider2D col)
@@ -256,6 +316,7 @@ public class PlayerScript : MonoBehaviour
         CheckForAttack(col, "KayoCrouchLightAttack");
         CheckForAttack(col, "KayoCrouchMediumAttack");
         CheckForAttack(col, "KayoCrouchHeavyAttack");
+        CheckForAttack(col, "KayoPerfectParryAttack");
     }
 
     private void FixedUpdate()
@@ -276,7 +337,10 @@ public class PlayerScript : MonoBehaviour
         }
         else
         {
-            currentParryMeter -= parryDrain / 5f;
+            if (!isBurnout)
+            {
+                currentParryMeter -= parryDrain / 5f;
+            }
             parryMeter.fillAmount = currentParryMeter / maxParryMeter;
         }
 
@@ -287,7 +351,14 @@ public class PlayerScript : MonoBehaviour
 
             if (currentBurnoutTime == maxBurnoutTime)
             {
-                currentParryMeter += maxParryMeter * 0.75f;
+                if (currentParryMeter >= maxParryMeter)
+                {
+                    currentParryMeter = maxParryMeter * 0.75f;
+                }
+                else if (currentParryMeter <= 0)
+                {
+                    currentParryMeter += maxParryMeter * 0.75f;
+                }
                 isBurnout = false;
                 currentBurnoutTime = 0;
                 timeBar.fillAmount = currentBurnoutTime / maxBurnoutTime;
@@ -306,7 +377,14 @@ public class PlayerScript : MonoBehaviour
         {
             if (!_attackStats.attacks[attackName].crouchAttack)
             {
-                if (!standBlocking && !isParrying)
+                if (parryTime > 0 && parryTime <= perfectParryWindow)
+                {
+                    perfectParry = true;
+                    perfectParryHitbox.SetActive(true);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
+                    DrainParryMeter(attackName);
+                }
+                else if (!standBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
                     anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
@@ -327,7 +405,14 @@ public class PlayerScript : MonoBehaviour
             }
             else if (_attackStats.attacks[attackName].crouchAttack)
             {
-                if (!crouchBlocking && !isParrying)
+                if (parryTime > 0 && parryTime <= perfectParryWindow)
+                {
+                    perfectParry = true;
+                    perfectParryHitbox.SetActive(true);
+                    anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
+                    DrainParryMeter(attackName);
+                }
+                else if (!crouchBlocking && !isParrying)
                 {
                     DamagePlayer(attackName);
                     anim.SetTrigger(_attackStats.attacks[attackName].attackRecovery);
@@ -351,14 +436,30 @@ public class PlayerScript : MonoBehaviour
 
     private void DamagePlayer(string attackName)
     {
-        currentVitality -= _attackStats.attacks[attackName].damage;
-        vitalityBar.fillAmount = currentVitality / maxVitality;
+        if (!isBurnout)
+        {
+            currentVitality -= _attackStats.attacks[attackName].damage;
+            vitalityBar.fillAmount = currentVitality / maxVitality;
+        }
+        else if (isBurnout)
+        {
+            currentVitality -= _attackStats.attacks[attackName].damage * 1.5f;
+            vitalityBar.fillAmount = currentVitality / maxVitality;
+        }
     }
 
     private void DrainParryMeter(string attackName)
     {
-        currentParryMeter += _attackStats.attacks[attackName].damage;
-        parryMeter.fillAmount = currentParryMeter / maxParryMeter;
+        if (!perfectParry)
+        {
+            currentParryMeter += _attackStats.attacks[attackName].damage;
+            parryMeter.fillAmount = currentParryMeter / maxParryMeter;
+        }
+        else if (perfectParry)
+        {
+            currentParryMeter += _attackStats.attacks[attackName].damage * 2;
+            parryMeter.fillAmount = currentParryMeter / maxParryMeter;
+        }
     }
 
     void FLipPlayer()

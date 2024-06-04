@@ -11,6 +11,7 @@ TagManager:
   - KayoCrouchLightAttack
   - KayoCrouchMediumAttack
   - KayoCrouchHeavyAttack
+  - KayoPerfectParryAttack
   layers:
   - Default
   - TransparentFX
