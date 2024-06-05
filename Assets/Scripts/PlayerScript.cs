@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private float currentBurnoutTime;
     [SerializeField] private float parryDrain;
     [SerializeField] private float timeAdd;
-    [SerializeField] private float perfectParryWindow = 0.1f;
+    [SerializeField] private float perfectParryWindow = 0.05f;
 
     [SerializeField] public Image vitalityBar;
     [SerializeField] private Image parryMeter;

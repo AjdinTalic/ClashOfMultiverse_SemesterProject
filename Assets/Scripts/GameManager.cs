@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text timerTxt;
     [SerializeField] private TMP_Text gameOverTxt;
+    [SerializeField] private TMP_Text startTxt;
 
     [SerializeField] private GameObject menu;
     [SerializeField] private GameObject resumeButton;
@@ -16,13 +18,14 @@ public class GameManager : MonoBehaviour
     private float timer;
 
     private bool isGameOver;
+    private bool isStarting;
 
     private PlayerScript[] players;
     
     // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale = 1;
+        StartCoroutine(StartGame());
         timerTxt.text = Convert.ToString(timeCount); 
         players = FindObjectsByType<PlayerScript>(FindObjectsSortMode.None);
         gameOverTxt.text = " ";
@@ -31,7 +34,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !isStarting)
         {
             menu.SetActive(true);
             Time.timeScale = 0;
@@ -142,5 +145,37 @@ public class GameManager : MonoBehaviour
         menu.SetActive(true);
         resumeButton.SetActive(false);
         Time.timeScale = 0;
+    }
+    
+    IEnumerator StartGame()
+    {
+        isStarting = true;
+        Time.timeScale = 0;
+
+        yield return StartCoroutine(WaitForRealSeconds(1));
+        startTxt.text = "Ready?";
+        yield return StartCoroutine(WaitForRealSeconds(1));
+        startTxt.text = "3";
+        yield return StartCoroutine(WaitForRealSeconds(1));
+        startTxt.text = "2";
+        yield return StartCoroutine(WaitForRealSeconds(1));
+        startTxt.text = "1";
+        yield return StartCoroutine(WaitForRealSeconds(1));
+        startTxt.text = "Go!";
+
+        Time.timeScale = 1;
+        isStarting = false;
+        
+        yield return new WaitForSeconds(1);
+        startTxt.text = " ";
+    }
+    
+    public static IEnumerator WaitForRealSeconds(float time)
+    {
+        float start = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < start + time)
+        {
+            yield return null;
+        }
     }
 }
